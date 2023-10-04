@@ -135,30 +135,57 @@ describe("diet routes test", () => {
         expect(dietUpdateResponse.status).toBe(204);
     });
 
-    // it('Should return a list of all user diets', async () => {
-    //     const createUserResponse = await request(app.server).post('/user').send({
-    //         user: 'usertest'
-    //     });
+    it("Should return a specific diet by id", async () => {  
+        const createUserResponse = await request(app.server).post('/user').send({
+            user: 'usertest'
+        });
 
-    //     const cookies = createUserResponse.get('Set-Cookie');
+        const cookies = createUserResponse.get('Set-Cookie');
 
-    //     await request(app.server).post('/diet').set('Cookie', cookies).send({
-    //         name: "dieta 1",
-    //         description: 'test descritption',
-    //         date: "0000-00-00 00:00:00",
-    //         isInDiet: 0,
-    //         user_id: 'test'
-    //     });
-            
-    //     const listDietsResponse = await request(app.server).get('/diet').set('Cookie', cookies);
+        await request(app.server).post('/diet').set('Cookie', cookies).send({
+            name: 'diet test',
+            description: 'test descritption',
+            date: '0000-00-00 00:00:00',
+            isInDiet: true,
+        });
 
-    //     expect(listDietsResponse.body).toEqual(expect.arrayContaining([
-    //         expect.objectContaining({
-    //             name: "dieta 1",
-    //             description: '',
-    //             date: "0000-00-00 00:00:00",
-    //             isInDiet: 0,
-    //         })
-    //     ]));
-    // });
+        const dietResponse = await request(app.server).get('/diet').set('Cookie', cookies);
+        
+        const dietId = dietResponse.body[0].id;
+
+        const dietUpdateResponse = await request(app.server).get(`/diet/${dietId}`).set('Cookie', cookies);
+
+        expect(dietUpdateResponse.body).toEqual([
+            {
+                id: dietId,
+                name: 'diet test',
+                description: 'test descritption',
+                date: '0000-00-00 00:00:00',
+                isInDiet: 1,
+            }
+        ]);
+    });
+
+    it("Should delete a specific diet by id", async () => {  
+        const createUserResponse = await request(app.server).post('/user').send({
+            user: 'usertest'
+        });
+
+        const cookies = createUserResponse.get('Set-Cookie');
+
+        await request(app.server).post('/diet').set('Cookie', cookies).send({
+            name: 'diet delete test',
+            description: 'test descritption',
+            date: '0000-00-00 00:00:00',
+            isInDiet: true,
+        });
+
+        const dietResponse = await request(app.server).get('/diet').set('Cookie', cookies);
+        
+        const dietId = dietResponse.body[0].id;
+
+        const dietDeleteResponse = await request(app.server).delete(`/diet/${dietId}`).set('Cookie', cookies);
+
+        expect(dietDeleteResponse.status).toBe(204);
+    });
 });
